@@ -1,5 +1,7 @@
 # Robotic gripper
 
+Fork of https://github.com/Evroc/Robotic-gripper
+
 ## Table of contents
   1. [Introduction](#introduction)
   1. [Features](#features)
@@ -14,11 +16,10 @@
 
 ## Introduction
 
- Cheap, 3d printed gripper for robotic applications with integrated electronics and ROS communication.
-    
+Cheap, 3d printed gripper for robotic applications with integrated electronics and ROS communication.
+
 <img src="https://github.com/Evroc/Robotic-gripper/blob/main/Gripper/Images/gripperOnUR_1.jpg" alt="Gripper mounted on UR3e" width="700"/>
 
-    
 ## Features
 
 * The gripper is mostly 3D printed, all parts were designed for FDM printers.
@@ -40,7 +41,7 @@ example.
 All files can be found there: ([LINK](https://www.printables.com/model/165722-robotic-gripper))
 
 ## Other parts
-  
+
 For non printed parts look here:
 
 * Gripper parts [CLICK](/Gripper/BOM/GripperBOM.xlsx)
@@ -51,17 +52,15 @@ For non printed parts look here:
 
 I designed dedicated PCB for this project, however feel free to modify it or even use your own designs.
 <img src="https://github.com/Evroc/Robotic-gripper/blob/main/PCB/Images/PCB_photo.jpg" alt="PCB" width="350"/>
-  
- Cheatsheet:
- * STATUS led - pin 0 (pinMode(0, OUTPUT))
- * COMMUNICATION led - pin 1 (pinMode(1, OUTPUT))
- * SERVO - pin 8 (servo.attach(8))
- * Power Status led works independently from the software
- * Jumper allows to power MCU without USB cable
-  
-<img src="https://github.com/Evroc/Robotic-gripper/blob/main/PCB/Images/PCB_connectors.PNG" alt="PCB" width="350"/> 
-  
 
+Cheatsheet:
+* STATUS led - pin 0 (pinMode(0, OUTPUT))
+* COMMUNICATION led - pin 1 (pinMode(1, OUTPUT))
+* SERVO - pin 8 (servo.attach(8))
+* Power Status led works independently from the software
+* Jumper allows to power MCU without USB cable
+
+<img src="https://github.com/Evroc/Robotic-gripper/blob/main/PCB/Images/PCB_connectors.PNG" alt="PCB" width="350"/> 
 
 ## Software
 
@@ -111,19 +110,17 @@ $ rostopic pub /gripper_state std_msgs/Int16 "data: 0"
 Check that: https://github.com/Michal-Bidzinski/UR3_sim
 
 ## Assembly manual
-  
+
 Online version is here: ([Build guide](https://1drv.ms/p/s!AmhhxRqSkzTrhK5689f8yG8gnyS89Q?e=EBmXII)) 
-  
+
 PDF is here: [Build guide PDF](/Build_guide/GripperBuildGuide_v1.0.pdf)
 
-  
 ## Additional informations
-  
+
 Keep in mind that the project is still under development and some information is missing here. If you encounter problems - contact me using email: michael.grabowski.lab@gmail.com
-  
+
 ## Other links
 
   ([Assembly animation](https://www.youtube.com/watch?v=25BgIXnhyFg))
-  
-  ([How does the mechanism works](https://youtu.be/p2rVJ_NBgKo))
 
+  ([How does the mechanism works](https://youtu.be/p2rVJ_NBgKo))
