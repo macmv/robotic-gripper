@@ -1,7 +1,10 @@
+#include <atomic>
 #include <memory>
 #include <string>
+#include <thread>
 
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <fcntl.h>
 #include <termios.h>
@@ -22,7 +25,7 @@ public:
       throw std::runtime_error("missing required parameter: tty");
     }
 
-    serial_fd_ = ::open(tty_path_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+    serial_fd_ = ::open(tty_path_.c_str(), O_RDWR | O_NOCTTY);
     if (serial_fd_ < 0) {
       RCLCPP_ERROR(get_logger(), "Failed to open %s: %s", tty_path_.c_str(),
                    std::strerror(errno));
@@ -42,7 +45,6 @@ public:
         [this](const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
                std::shared_ptr<std_srvs::srv::SetBool::Response> response) {
           if (request->data) {
-            open_position_ = 1.0f;
             if (serial_fd_ >= 0) {
               const char cmd = 'o';
               if (::write(serial_fd_, &cmd, 1) != 1) {
@@ -52,7 +54,6 @@ public:
             }
             response->message = "opened";
           } else {
-            open_position_ = 0.0f;
             if (serial_fd_ >= 0) {
               const char cmd = 'c';
               if (::write(serial_fd_, &cmd, 1) != 1) {
@@ -62,20 +63,44 @@ public:
             }
             response->message = "closed";
           }
-          std_msgs::msg::Float32 pos_msg;
-          pos_msg.data = open_position_;
-          position_publisher_->publish(pos_msg);
           response->success = true;
         });
+
+    if (serial_fd_ >= 0) {
+      read_running_.store(true);
+      read_thread_ = std::thread([this]() { read_loop_(); });
+    }
   }
 
   ~GripperNode() override {
+    read_running_.store(false);
     if (serial_fd_ >= 0) {
       ::close(serial_fd_);
+    }
+    if (read_thread_.joinable()) {
+      read_thread_.join();
     }
   }
 
 private:
+  void read_loop_() {
+    while (read_running_.load()) {
+      std::uint8_t value = 0;
+      const ssize_t bytes = ::read(serial_fd_, &value, 1);
+      if (bytes == 1) {
+        open_position_ = static_cast<float>(value) / 255.0f;
+        std_msgs::msg::Float32 pos_msg;
+        pos_msg.data = open_position_;
+        position_publisher_->publish(pos_msg);
+        continue;
+      }
+      if (bytes < 0 && errno == EINTR) {
+        continue;
+      }
+      break;
+    }
+  }
+
   bool configure_serial_(int fd) {
     termios tty{};
     if (tcgetattr(fd, &tty) != 0) {
@@ -97,6 +122,9 @@ private:
       return false;
     }
 
+    tty.c_cc[VMIN] = 1;
+    tty.c_cc[VTIME] = 0;
+
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
       RCLCPP_ERROR(get_logger(), "tcsetattr failed: %s", std::strerror(errno));
       return false;
@@ -107,6 +135,8 @@ private:
 
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr position_publisher_;
   rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr service_;
+  std::thread read_thread_;
+  std::atomic<bool> read_running_{false};
   float open_position_ = 0.0f;
   int serial_fd_ = -1;
   std::string tty_path_;
