@@ -7,9 +7,9 @@ void setup() {
 void loop() {
   if (Serial.available() > 0) {
     int byte = Serial.read();
-    if (byte == 'y') {
+    if (byte == 'o') {
       digitalWrite(13, HIGH);
-    } else if (byte == 'n') {
+    } else if (byte == 'c') {
       digitalWrite(13, LOW);
     }
   }
