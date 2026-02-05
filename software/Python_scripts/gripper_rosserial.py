@@ -5,8 +5,8 @@ from std_msgs.msg import Int16
 
 class GripperController:
     def __init__(self):
-        rospy.init_node('gripper_control', anonymous=True)
-        self.pub_gripper_state = rospy.Publisher('gripper_state', Int16, queue_size=3)
+        rospy.init_node("gripper_control", anonymous=True)
+        self.pub_gripper_state = rospy.Publisher("gripper_state", Int16, queue_size=3)
         # self.rate = rospy.Rate(10)  # 10hz
         self.gripper_state = Int16()
         self.gripper_state.data = 180
@@ -34,5 +34,5 @@ def main():
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
